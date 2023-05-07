@@ -107,6 +107,8 @@ function bindEvents() {
     });
 
     $("#routemaster-displayAll").on("click", displayAllOnMap);
+    
+    $("#routemaster-displayRouteMaster").on("click", displayRouteMasterOnMap);
 
     $("#routemaster-select")
         .removeClass("hidden")
@@ -358,6 +360,13 @@ function displayRoutes(route_master) {
 function displayAllOnMap() {
     clearMap();
     _.each(parsed.routes, displayOnMap);
+}
+
+function displayRouteMasterOnMap() {
+    clearMap();
+    _.each(parsed.route_masters[$("#routemaster-select").val()].members, function (r) {
+        displayOnMap(parsed.routes[r.id]);
+    });
 }
 
 function displayRouteData(route) {
