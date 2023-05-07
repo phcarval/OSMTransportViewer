@@ -378,8 +378,8 @@ function displayRouteData(route) {
     $('#stops-list').find("li").remove();
     var master_li;
     _.each(route.members, function (member) {
-        if (!member.role.match(/stop(_entry_only|_exit_only)?/)) {
-            return;
+        if (!member.role.match("platform")) {
+            return
         }
         master_li = $("<li>");
         stop_ul = $("<ul>");
