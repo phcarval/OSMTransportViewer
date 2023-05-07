@@ -400,10 +400,34 @@ function displayRouteData(route) {
         $("<a>", {href: osmUrl + member.type + "/" + member.id, "data-osm": member.id})
             .append($("<img>", {src: "img/stop_position_32.png", alt: "Stop_position"}))
             .appendTo(stop_li);
-        $("<span>")
-            .text("♿")
-            .addClass("wheelchair feature_" + member.tags.wheelchair)
-            .appendTo(stop_li);
+        switch (member.tags.wheelchair) {
+            case "yes":
+            case "designated":
+                $("<span>")
+                    .append($("<img>", {src: "img/wheelchair.png", alt: "Wheelchair access"}))
+                    .addClass("wheelchair feature_" + member.tags.wheelchair)
+                    .appendTo(stop_li);
+                break;
+            case "limited":
+                $("<span>")
+                    .append($("<img>", {src: "img/wheelchair.png", alt: "Limited wheelchair access"}))
+                    .addClass("wheelchair feature_" + member.tags.wheelchair)
+                    .appendTo(stop_li);
+                break;
+            case "no":
+                $("<span>")
+                    .append($("<img>", {src: "img/no_wheelchair_2.png", alt: "No wheelchair access"}))
+                    .addClass("wheelchair feature_" + member.tags.wheelchair)
+                    .appendTo(stop_li);
+                break;
+            case "undefined":
+            default:
+                $("<span>")
+                    .append($("<img>", {src: "img/undefined_wheelchair_2.png", alt: "Unknown wheelchair access"}))
+                    .addClass("wheelchair feature_" + member.tags.wheelchair)
+                    .appendTo(stop_li);
+                break;
+        }
         $("<span>").html(member.tags.name || member.id)
             .appendTo(stop_li);
         stop_li.on("click", null, member, function () {
@@ -413,8 +437,9 @@ function displayRouteData(route) {
             member.layer.closePopup();
         });
         stop_ul.append(stop_li);
-
-        var platforms = findPlatforms(route, member.stop_area);
+        
+        // we already have a platform
+        /*var platforms = findPlatforms(route, member.stop_area);
         _.each(platforms, function (platform) {
             var platform_li = $("<li>");
             $("<a>", {href: osmUrl + platform.type + "/" + platform.id})
@@ -435,7 +460,7 @@ function displayRouteData(route) {
                 platform.layer.closePopup();
             })
             .appendTo(stop_ul);
-        });
+        });*/
         master_li.append(stop_ul);
         $('#stops-list').append(master_li);
     });
