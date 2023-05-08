@@ -416,14 +416,14 @@ function displayRouteData(route) {
                 break;
             case "no":
                 $("<span>")
-                    .append($("<img>", {src: "img/no_wheelchair_2.png", alt: "No wheelchair access"}))
+                    .append($("<img>", {src: "img/no_wheelchair.png", alt: "No wheelchair access"}))
                     .addClass("wheelchair feature_" + member.tags.wheelchair)
                     .appendTo(stop_li);
                 break;
             case "undefined":
             default:
                 $("<span>")
-                    .append($("<img>", {src: "img/undefined_wheelchair_2.png", alt: "Unknown wheelchair access"}))
+                    .append($("<img>", {src: "img/undefined_wheelchair.png", alt: "Unknown wheelchair access"}))
                     .addClass("wheelchair feature_" + member.tags.wheelchair)
                     .appendTo(stop_li);
                 break;
