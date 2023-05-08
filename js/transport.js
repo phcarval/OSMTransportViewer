@@ -369,6 +369,50 @@ function displayRouteMasterOnMap() {
     });
 }
 
+function displayWayOrNode(member) {
+    if (member.type === "node") {
+        return $("<a>", {href: osmUrl + member.type + "/" + member.id, "data-osm": member.id})
+            .append($("<img>", {src: "img/" + member.type + ".png", alt: "Stop_position"}));
+    }
+}
+
+function getStopAreaImage(member) {
+    return $("<a>", {href: osmUrl + "relation/" + member.stop_area.id, "data-osm": member.stop_area.id})
+        .append($("<img>", {src: "img/relation.svg", alt: "stop_area relation"}));
+}
+
+function getNodeOrWayImage(member) {
+    return $("<a>", {href: osmUrl + member.type + "/" + member.id, "data-osm": member.id})
+        .append($("<img>", {src: "img/" + member.type + ".svg", alt: "platform"}));
+}
+
+function getWheelchairInfo(member) {
+    switch (member.tags.wheelchair) {
+        case "yes":
+        case "designated":
+            return $("<span>")
+                .append($("<img>", {src: "img/wheelchair.png", alt: "Wheelchair access"}))
+                .addClass("wheelchair feature_" + member.tags.wheelchair);
+            break;
+        case "limited":
+            return $("<span>")
+                .append($("<img>", {src: "img/wheelchair.png", alt: "Limited wheelchair access"}))
+                .addClass("wheelchair feature_" + member.tags.wheelchair);
+            break;
+        case "no":
+            return $("<span>")
+                .append($("<img>", {src: "img/no_wheelchair.png", alt: "No wheelchair access"}))
+                .addClass("wheelchair feature_" + member.tags.wheelchair);
+            break;
+        case "undefined":
+        default:
+            return $("<span>")
+                .append($("<img>", {src: "img/undefined_wheelchair.png", alt: "Unknown wheelchair access"}))
+                .addClass("wheelchair feature_" + member.tags.wheelchair);
+            break;
+    }
+}
+
 function displayRouteData(route) {
     // Display route tags
     $("#route-tags").html(getTagTable(route));
@@ -376,92 +420,64 @@ function displayRouteData(route) {
 
     // Clear data display before new display
     $('#stops-list').find("li").remove();
-    var master_li;
     _.each(route.members, function (member) {
         if (!member.role.match("platform")) {
             return
+            /* no "stop" roles here, since it is not required in v2 specification,
+            however platforms are required */
         }
         master_li = $("<li>");
-        stop_ul = $("<ul>");
         if (member.stop_area) {
-            $("<a>", {href: osmUrl + "relation/" + member.stop_area.id})
-                .append($("<img>", {src: "img/relation.svg", alt: "stop_area relation"}))
-                .appendTo(master_li);
-            $("<span>").html(member.stop_area.tags.name || member.stop_area.id)
-                .addClass("route_master-name")
-                .appendTo(master_li);
+            if (member.stop_area.tags.name !== member.tags.name) {
+                $("<span>")
+                    .text("(stop_area and platform have different names) ")
+                    .appendTo(master_li);
+                getStopAreaImage(member).appendTo(master_li);
+                $("<span>")
+                    .append(member.stop_area.tags.name || member.stop_area.id)
+                    .append("/")
+                    .on("click", null, member, function () {
+                        member.layer.openPopup();
+                    })
+                    .appendTo(master_li);
+                getNodeOrWayImage(member).appendTo(master_li);
+                $("<span>")
+                    .append(member.tags.name || member.id)
+                    .on("click", null, member, function () {
+                    member.layer.openPopup();
+                })
+                    .appendTo(master_li);
+            }
+            else
+            {
+                getStopAreaImage(member).appendTo(master_li);
+                getNodeOrWayImage(member).appendTo(master_li);
+                $("<span>")
+                    .append(member.tags.name)
+                    .addClass("route_master-name")
+                    .on("click", null, member, function () {
+                        member.layer.openPopup();
+                    })
+                    .appendTo(master_li);
+            }
         } else {
-            $("<span>")
-                .text("Missing stop_area relation")
-                .addClass("route_master-name")
-                .appendTo(master_li);
+                $("<span>")
+                    .text("(Missing stop_area relation) ")
+                    .appendTo(master_li);
+                getNodeOrWayImage(member).appendTo(master_li);
+                $("<span>")
+                    .append(member.tags.name || member.id)
+                    .addClass("route_master-name")
+                    .on("click", null, member, function () {
+                        member.layer.openPopup();
+                    })
+                    .appendTo(master_li);
         }
-        stop_li = $("<li>");
-        $("<a>", {href: osmUrl + member.type + "/" + member.id, "data-osm": member.id})
-            .append($("<img>", {src: "img/stop_position_32.png", alt: "Stop_position"}))
-            .appendTo(stop_li);
-        switch (member.tags.wheelchair) {
-            case "yes":
-            case "designated":
-                $("<span>")
-                    .append($("<img>", {src: "img/wheelchair.png", alt: "Wheelchair access"}))
-                    .addClass("wheelchair feature_" + member.tags.wheelchair)
-                    .appendTo(stop_li);
-                break;
-            case "limited":
-                $("<span>")
-                    .append($("<img>", {src: "img/wheelchair.png", alt: "Limited wheelchair access"}))
-                    .addClass("wheelchair feature_" + member.tags.wheelchair)
-                    .appendTo(stop_li);
-                break;
-            case "no":
-                $("<span>")
-                    .append($("<img>", {src: "img/no_wheelchair.png", alt: "No wheelchair access"}))
-                    .addClass("wheelchair feature_" + member.tags.wheelchair)
-                    .appendTo(stop_li);
-                break;
-            case "undefined":
-            default:
-                $("<span>")
-                    .append($("<img>", {src: "img/undefined_wheelchair.png", alt: "Unknown wheelchair access"}))
-                    .addClass("wheelchair feature_" + member.tags.wheelchair)
-                    .appendTo(stop_li);
-                break;
-        }
-        $("<span>").html(member.tags.name || member.id)
-            .appendTo(stop_li);
-        stop_li.on("click", null, member, function () {
-            member.layer.openPopup();
-        })
-        .on("mouseleave", null, member, function () {
-            member.layer.closePopup();
-        });
-        stop_ul.append(stop_li);
-        
-        // we already have a platform
-        /*var platforms = findPlatforms(route, member.stop_area);
-        _.each(platforms, function (platform) {
-            var platform_li = $("<li>");
-            $("<a>", {href: osmUrl + platform.type + "/" + platform.id})
-                .append($("<img>", {src: "img/platform_14.png", alt: "Platform"}))
-                .appendTo(platform_li);
-            $("<span>")
-                .text("♿")
-                .addClass("wheelchair feature_" + platform.tags.wheelchair)
-                .appendTo(platform_li);
-            $("<span>")
-                .text(platform.tags.name || platform.id)
-                .appendTo(platform_li);
-
-            platform_li.on("click", null, member, function () {
-                platform.layer.openPopup();
-            })
-            .on("mouseleave", null, platform, function () {
-                platform.layer.closePopup();
-            })
-            .appendTo(stop_ul);
-        });*/
-        master_li.append(stop_ul);
+        info_list = $("<ul>");
+        $("<li>")
+            .append(getWheelchairInfo(member))
+            .appendTo(info_list);
+        master_li.append(info_list);
         $('#stops-list').append(master_li);
     });
 }
