@@ -430,7 +430,9 @@ function displayRouteData(route) {
         if (member.stop_area) {
             if (member.stop_area.tags.name !== member.tags.name) {
                 $("<span>")
-                    .text("(stop_area and platform have different names) ")
+                    .text("(!)")
+                    .prop("title","stop_area and platform have different names ")
+                    .addClass("stops_error")
                     .appendTo(master_li);
                 getStopAreaImage(member).appendTo(master_li);
                 $("<span>")
@@ -462,7 +464,9 @@ function displayRouteData(route) {
             }
         } else {
                 $("<span>")
-                    .text("(Missing stop_area relation) ")
+                    .text("(?) ")
+                    .prop("title", "Missing stop_area relation")
+                    .addClass("stops_error")
                     .appendTo(master_li);
                 getNodeOrWayImage(member).appendTo(master_li);
                 $("<span>")

@@ -145,8 +145,20 @@ ul#stops-list {
 }
 
 ul#stops-list img, div#routes_list ul>li img {
-    max-height: 0.8em;
+    max-height: 1.5em;
+    margin-right: 5px;
+}
+
+ul#stops-list ul>li img {
+    max-height: 0.9em;
     margin-right: 10px;
+}
+
+.stops_error {
+    color:#a94442;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: default;
 }
 
 ul#stops-list ul {
