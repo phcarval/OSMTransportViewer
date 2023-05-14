@@ -285,28 +285,26 @@ function makeMarker(obj, group, overrideStyle) {
     };
     var popupHTML = `<a href='${osmUrl}${obj.type}/${obj.id}'><h1>${obj.tags.name || "!Missing name!"}</h1></a>
         ${getTagTable(obj)}`;
-    if (obj.type == "way") {
+    if (obj.type == "way" && obj.tags.public_transport !== "platform") {
         var latlngs = getLatLngArray(obj);
-        if (obj.tags.public_transport === "platform") {
-            obj.layer = L.polyline(latlngs,{
-                color: 'blue',
-                weight: 8
-            }).bindPopup(popupHTML, markerOptions);
-        }
-        else {
-            obj.layer = L.polyline(latlngs,$.extend({
-                weight: 4
-            }, overrideStyle)).bindPopup(popupHTML, markerOptions);
-       }
+        obj.layer = L.polyline(latlngs,$.extend({
+            weight: 4
+        }, overrideStyle)).bindPopup(popupHTML, markerOptions);
     } else {
-        if (obj.tags.public_transport === "stop_position") {
-            obj.layer = L.marker([obj.lat, obj.lon], {
+        if (obj.tags.public_transport === "platform") {
+            var lat, lon;
+            if (obj.type == "way") {
+                [lat, lon] = [obj.nodes[0].lat, obj.nodes[0].lon];
+            }
+            else {
+                [lat, lon] = [obj.lat, obj.lon];
+            }
+            obj.layer = L.marker([lat, lon], {
                 icon: iconStopPosition
             })
             .bindPopup(popupHTML, markerOptions);
         } else {
-            obj.layer = L.marker([obj.lat, obj.lon])
-            .bindPopup(popupHTML, markerOptions);
+            console.error("Should not happen");
         }
     }
     group.addLayer(obj.layer);
