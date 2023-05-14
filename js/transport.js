@@ -436,6 +436,7 @@ function displayRouteData(route) {
                 $("<span>")
                     .append(member.stop_area.tags.name || member.stop_area.id)
                     .append("/")
+                    .addClass("route_master-name")
                     .on("click", null, member, function () {
                         member.layer.openPopup();
                     })
@@ -443,6 +444,7 @@ function displayRouteData(route) {
                 getNodeOrWayImage(member).appendTo(master_li);
                 $("<span>")
                     .append(member.tags.name || member.id)
+                    .addClass("route_master-name")
                     .on("click", null, member, function () {
                     member.layer.openPopup();
                 })
