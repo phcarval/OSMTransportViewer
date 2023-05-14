@@ -2,7 +2,12 @@ function getRouteMastersData(base, done, fail, always) {
     var query = '[out:json];' +
     base + '->.route_masters;' +
     'rel(r.route_masters)->.routes;' +
-    'node(r.routes)->.stops;' +
+    '(' +
+      'node(r.routes);' +
+      'way (r.routes:"platform");' +
+      'way (r.routes:"platform_entry_only");' +
+      'way (r.routes:"platform_exit_only");' +
+    ')->.stops;' +
     'way(r.routes)[~"(high|rail)way"~"."]->.paths;' +
     'node(w.paths)->.paths_nodes;' +
     '(' +
